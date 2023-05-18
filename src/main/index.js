@@ -9,6 +9,7 @@ function createWindow() {
     width: 900,
     height: 670,
     show: false,
+    // frame: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
@@ -16,8 +17,11 @@ function createWindow() {
       sandbox: false
     }
   })
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools()
+  }
 
-  mainWindow.on('ready-to-show', () => {
+  mainWindow.once('ready-to-show', () => {
     mainWindow.show()
   })
 
@@ -28,13 +32,13 @@ function createWindow() {
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
-  // if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-  //   mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  // } else {
-  //   mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-  // }
-  // mainWindow.loadFile('http://localhost:3000/')
-  mainWindow.loadURL('http://localhost:3000/')
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+  } else {
+    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+  }
+
+  // mainWindow.loadURL('http://localhost:3000/')
 }
 
 // This method will be called when Electron has finished
@@ -71,3 +75,17 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+
+app.on('will-quit', () => {
+  console.log('will quiting')
+})
+app.on('before-quit', () => {
+  console.log('before quiting')
+})
+
+app.on('browser-window-blur', () => {
+  console.log('blur')
+})
+app.on('browser-window-focus', () => {
+  console.log('first focus')
+})
